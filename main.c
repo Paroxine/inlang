@@ -2,8 +2,8 @@
 #include <string.h>
 #include <stdlib.h>
 
-//enum breaker { END = 0, SPACE = 32, BRAO = 124, BRAC = 125, PARO = 40, PARC = 41, SEMI = 59, COMMA = 44, QUOTE = 34 };
-enum breaker { END, SPACE, BRAO, BRAC, PARO, PARC, SEMI, COMMA, QUOTE };
+enum breaker { END = 0, SPACE = 32, BRAO = 91, BRAC = 93, PARO = 40, PARC = 41, SEMI = 59, COMMA = 44, QUOTE = 34 };
+//enum breaker { END, SPACE, BRAO, BRAC, PARO, PARC, SEMI, COMMA, QUOTE };
 
 struct token_stack {
     enum breaker breaker;
@@ -73,10 +73,62 @@ struct token_stack* lexer(char* in) {
     return tokens;
 }
 
+struct token_stack* lex_file(char* filename) {
+    int ci = 0;
+    struct token_stack* tokens = malloc(sizeof(struct token_stack));
+    FILE* fp = fopen(filename,"r");
+    fseek(fp, 0, SEEK_END);
+    int len = ftell(fp);
+    fseek(fp,0,SEEK_SET);
+    char* buf = malloc(sizeof(char) * len);
+    char c;
+    while (!feof(fp)) {
+        c = fgetc(fp);
+        if (c == END || c == SPACE || c == PARO || c == PARC || c == BRAO || c == BRAC || c == COMMA || c == SEMI || c == QUOTE) {
+            enum breaker breaker;
+            switch (c) {
+                case 0:
+                    breaker = END;
+                    break;
+                case 32:
+                    breaker = SPACE;
+                    break;
+                case 40:
+                    breaker = PARO;
+                    break;
+                case 41:
+                    breaker = PARC;
+                    break;
+                case 44:
+                    breaker = COMMA;
+                    break;
+                case 59:
+                    breaker = SEMI;
+                    break;
+                case 91:
+                    breaker = BRAO;
+                    break;
+                case 93:
+                    breaker = BRAC;
+                    break;
+            }
+            tokens = add_token(buf, breaker, tokens);
+            free(buf);
+            buf = malloc(sizeof(char) * len);
+        } else {
+            strncat(buf,&c,1);
+        }
+        ci++;
+    }
+    tokens = add_token(buf, END, tokens);
+    free(buf);
+    return tokens;
+}
+
 int main(int argc, char* argv[]) {
     if (argc < 2) return 0;
-
-    struct token_stack* tokens = lexer(argv[1]);
+    //struct token_stack* tokens = lexer(argv[1]);
+    struct token_stack* tokens = lex_file(argv[1]);
     show_tokens(tokens);
 
     return 0;
