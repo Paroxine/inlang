@@ -101,8 +101,8 @@ char* read_Float(char* texte ,int* curseur){
     
 };
 
-token_stack* lexer(char* filename){
-    int ci = 0;
+token_stack* lexer(char* filename, int* taille){
+    int compteur = 0;
     token_stack* stack =  new_token_stack();
     stack->token=NULL;
     FILE* fichier = fopen(filename,"r");
@@ -115,7 +115,10 @@ token_stack* lexer(char* filename){
     while (curseur<len&&(texte[curseur]!='\0')){
         char c = texte[curseur];
         char* value = char_to_string(c);
-        if (texte[curseur]==SPACE) curseur++;
+        if (texte[curseur]==SPACE) {
+            curseur++;
+            compteur--;
+        }
         else if (is_Op(c)) {
             add_token(new_token(OP,value),stack);
             curseur ++;
@@ -142,11 +145,39 @@ token_stack* lexer(char* filename){
                 add_token(new_token(ID,mot),stack);
             }
         };
+        compteur++;
        
     }
+    *taille = compteur-1;
     return stack;
 };
 
+token** token_list(char* nom){
+    int taille;
+    int i =0 ;
+    token_stack* stack = lexer(nom,&taille);
+    token** tab = malloc(sizeof(token*)*taille);
+    while(stack->token!=NULL){
+        tab[taille-i]=stack->token;
+        stack = stack->next;
+        i++;
+    }
+    for (int l = 0; l < taille; l++)
+    {
+        show_token(tab[l]);
+    } 
+
+    return tab;
+};
+
+
+
 int main(){
-    show_token_stack(lexer("test.txt"));
+    int i;
+    token_list("test.txt");
+    
+    
+
+   
+   
 } 
