@@ -58,7 +58,7 @@ bool is_Punc (char c){
 }
 
 bool is_Op (char c){
-    if (c==PLUS||c==MINUS||c==PROD||c==DIV||c==PERC||c==EQUAL||c==EXCLA) return true;
+    if (c==PLUS||c==MINUS||c==PROD||c==DIV||c==PERC||c==EQUAL||c==EXCLA||c==LESS||c==GREATER) return true;
     else return false;
 };
 
@@ -85,7 +85,7 @@ char* read_String(char* texte, int* curseur){
 };
 
 bool is_Keyword(char* mot){
-    if (strcmp(mot,"if")==0||strcmp(mot,"else")==0||strcmp(mot,"while")==0||strcmp(mot,"then")==0||strcmp(mot,"function")==0||strcmp(mot,"let")==0) return true;
+    if (strcmp(mot,"if")==0||strcmp(mot,"else")==0||strcmp(mot,"while")==0||strcmp(mot,"then")==0||strcmp(mot,"function")==0||strcmp(mot,"let")==0||strcmp(mot,"true")||strcmp(mot,"false")) return true;
     else return false ;
 };
 
@@ -115,7 +115,7 @@ token_stack* lexer(char* filename, int* taille){
     while (curseur<len&&(texte[curseur]!='\0')){
         char c = texte[curseur];
         char* value = char_to_string(c);
-        if (texte[curseur]==SPACE) {
+        if (c==SPACE||c==10||c==13||c=='\t') {
             curseur++;
             compteur--;
         }
@@ -156,28 +156,19 @@ token** token_list(char* nom){
     int taille;
     int i =0 ;
     token_stack* stack = lexer(nom,&taille);
-    token** tab = malloc(sizeof(token*)*taille);
+    token** tab = malloc(sizeof(token*)*(taille+1));
     while(stack->token!=NULL){
         tab[taille-i]=stack->token;
         stack = stack->next;
         i++;
     }
-    for (int l = 0; l < taille; l++)
+    for (int k = 0; k < taille; k++)
     {
-        show_token(tab[l]);
-    } 
-
+        show_token(tab[k]);
+    }
+    
+    free(stack);
     return tab;
 };
 
 
-
-int main(){
-    int i;
-    token_list("test.txt");
-    
-    
-
-   
-   
-} 
