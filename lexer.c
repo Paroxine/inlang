@@ -85,7 +85,7 @@ char* read_String(char* texte, int* curseur){
 };
 
 bool is_Keyword(char* mot){
-    if (strcmp(mot,"if")==0||strcmp(mot,"else")==0||strcmp(mot,"while")==0||strcmp(mot,"then")==0||strcmp(mot,"function")==0||strcmp(mot,"let")==0||strcmp(mot,"true")||strcmp(mot,"false")) return true;
+    if (strcmp(mot,"if")==0||strcmp(mot,"else")==0||strcmp(mot,"while")==0||strcmp(mot,"then")==0||strcmp(mot,"function")==0||strcmp(mot,"let")==0||strcmp(mot,"true")==0||strcmp(mot,"false")==0) return true;
     else return false ;
 };
 
@@ -152,23 +152,20 @@ token_stack* lexer(char* filename, int* taille){
     return stack;
 };
 
-token** token_list(char* nom){
-    int taille;
+token** token_list(char* nom, int* taille){
     int i =0 ;
-    token_stack* stack = lexer(nom,&taille);
-    token** tab = malloc(sizeof(token*)*(taille+1));
+    token_stack* stack = lexer(nom,taille);
+    token** tab = malloc(sizeof(token*)*(*taille+1));
     while(stack->token!=NULL){
-        tab[taille-i]=stack->token;
+        tab[*taille-i]=stack->token;
         stack = stack->next;
         i++;
     }
-    for (int k = 0; k < taille; k++)
+    for (int k = 0; k < *taille; k++)
     {
         show_token(tab[k]);
     }
-    
     free(stack);
     return tab;
 };
-
 

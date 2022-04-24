@@ -45,4 +45,9 @@ bool is_Keyword(char* mot);
 
 char* read_Float(char* texte ,int* curseur);
 
+token_stack* lexer(char* filename, int* taille);
+
+token** token_list(char* nom, int* taille);
+
+
 #endif

@@ -6,8 +6,9 @@
 enum p_type {BLOCK,NUMBER,STRING,BOOLEEN,IDENTIFIER,FUNCTION, CALL,ASSIGN, BINARY };
 typedef struct AST_T{
     enum p_type type;
-    struct list_T* children;
     char* name;
+    char* value;
+
     
 } AST_T;
 
