@@ -3,6 +3,22 @@
 #include <stdlib.h>
 #include "lexer.h"
 
+list* init_list(size_t item_size){
+    list* liste = calloc(1,sizeof(struct list));
+    liste->items = 0 ;
+    liste->size = 0;
+    liste->item_size = item_size;
+    return liste;
+}
+
+void push_item(list* liste, void* item){
+    if (!liste->items) liste->items = calloc(1,liste->item_size);
+    else liste->items = realloc(liste->items,liste->item_size*(liste->size+1));
+    liste->items[liste->size]=item;
+    liste->size += 1;
+}
+
+
 char* char_to_string(char c){
     char* mot = malloc(sizeof(char)*2);
     mot[0]=c;

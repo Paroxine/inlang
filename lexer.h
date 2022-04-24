@@ -8,6 +8,12 @@ LBRA = 91, RBRA = 93 , LCURL=123, RCURL = 125 , PERC = 37 , PROD = 42 ,PLUS = 43
 
 enum type { PUNC, INT, STR , KW, OP, ID};
 
+typedef struct list{
+    void** items;
+    size_t size;
+    size_t item_size;
+}list;
+
 typedef struct token{
     enum type type;
     char* value;
@@ -18,6 +24,12 @@ typedef struct token_stack {
     struct token* token;
     struct token_stack* next;
 }token_stack;
+
+
+
+list* init_list(size_t item_size);
+
+void push_item(list* liste, void* item);
 
 char* char_to_string(char c);
 
