@@ -4,10 +4,13 @@
 
 
 enum p_type {BLOCK,NUMBER,STRING,BOOLEEN,IDENTIFIER,FUNCTION, CALL,ASSIGN, BINARY };
+
 typedef struct AST_T{
     enum p_type type;
     char* name;
     char* value;
+    struct AST_T** children;
+    
 
     
 } AST_T;

@@ -1,2 +1,1 @@
-gcc main.c
-./a.out
+gcc lexer.h parse.h 

@@ -50,12 +50,12 @@ AST_T* ast_assign(int* curseur,token** liste_token){
 };
 
 AST_T* parser(char* nom){
-    int taille;
-    token** liste_token = token_list(nom,&taille);
+    token_list* liste_token = lexer(nom);
+    int taille = liste_token->size;
     int curseur =0;
-    while (curseur< taille)
+    while (curseur<taille)
     {
-        ast_coumpound(&curseur,liste_token);
+        ast_compound(&curseur,liste_token);
     }
     
     
