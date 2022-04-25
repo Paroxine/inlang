@@ -1,43 +1,33 @@
 #ifndef LEXER_H
 #define LEXER_H
-#include <stdbool.h>
-#include <ctype.h>
+
 
 enum breaker { END = 0, SPACE = 32, EXCLA = 33, QUOTE = 34 , LPAR = 40, RPAR = 41, COMMA = 44,  POINT = 46 ,SEMIC= 59,LESS =60, EQUAL=61 ,GREATER=62,
 LBRA = 91, RBRA = 93 , LCURL=123, RCURL = 125 , PERC = 37 , PROD = 42 ,PLUS = 43 ,MINUS = 45 ,DIV = 47 ,HTAG = 35, LINE = 10};
 
 enum type { PUNC, INT, STR , KW, OP, ID};
 
-typedef struct list{
-    void** items;
-    size_t size;
-    size_t item_size;
-}list;
 
 typedef struct token{
     enum type type;
     char* value;
 } token;
 
+typedef struct token_list{
+    token** items;
+    size_t size;
+}token_list;
 
-typedef struct token_stack {
-    struct token* token;
-    struct token_stack* next;
-}token_stack;
-
-
-
-list* init_list(size_t item_size);
-
-void push_item(list* liste, void* item);
 
 char* char_to_string(char c);
+
+token_list* init_token_list();
 
 struct token* new_token(enum type, char* value);
 
 struct token_stack* new_token_stack();
 
-void add_token(token* token, struct token_stack* stack);
+void add_token(token* token, token_list* stack);
 
 void show_token(struct token* token);
 
@@ -57,9 +47,6 @@ bool is_Keyword(char* mot);
 
 char* read_Float(char* texte ,int* curseur);
 
-token_stack* lexer(char* filename, int* taille);
-
-token** token_list(char* nom, int* taille);
-
+token_list* lexer(char* filename);
 
 #endif

@@ -1,31 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <ctype.h> 
 #include "lexer.h"
-
-list* init_list(size_t item_size){
-    list* liste = calloc(1,sizeof(struct list));
-    liste->items = 0 ;
-    liste->size = 0;
-    liste->item_size = item_size;
-    return liste;
-}
-
-void push_item(list* liste, void* item){
-    if (!liste->items) liste->items = calloc(1,liste->item_size);
-    else liste->items = realloc(liste->items,liste->item_size*(liste->size+1));
-    liste->items[liste->size]=item;
-    liste->size += 1;
-}
-
-
-char* char_to_string(char c){
-    char* mot = malloc(sizeof(char)*2);
-    mot[0]=c;
-    mot[1]='\0';
-    return mot;
-
-};
 
 struct token* new_token(enum type type, char* value){
     struct token* token = malloc(sizeof(struct token));
@@ -35,20 +13,20 @@ struct token* new_token(enum type type, char* value){
 
 };
 
-void add_token(token* token ,token_stack* stack) {
-    struct token_stack *new = malloc(sizeof(struct token_stack));
-    new->token = stack->token;
-    new->next = stack->next;
-    stack->next = new;
-    stack->token = token;
+
+token_list* init_token_list(){
+    token_list* liste = calloc(1,sizeof(struct token_list));
+    liste->items = 0 ;
+    liste->size = 0;
+    return liste;
 }
 
-struct token_stack* new_token_stack(){
-    struct token_stack *new = malloc(sizeof(struct token_stack));
-    new->next=NULL;
-    return(new);
-
-};
+void add_token(token* item, token_list* liste){
+    if (!liste->items) liste->items = calloc(1,sizeof(token*));
+    else liste->items = realloc(liste->items,sizeof(token*)*(liste->size+1));
+    liste->items[liste->size]=item;
+    liste->size += 1;
+}
 
 void show_token(struct token* token){
     if (token->type==PUNC){printf("Punctuation : %s\n", token->value);};
@@ -60,12 +38,12 @@ void show_token(struct token* token){
     
 };
 
-void show_token_stack(struct token_stack* token_stack){
-    struct token_stack* next = token_stack->next;
-    if (token_stack->token!=NULL){
-        show_token(token_stack->token);
-        show_token_stack(token_stack->next);
-    };
+char* char_to_string(char c){
+    char* mot = malloc(sizeof(char)*2);
+    mot[0]=c;
+    mot[1]='\0';
+    return mot;
+
 };
 
 bool is_Punc (char c){
@@ -117,10 +95,9 @@ char* read_Float(char* texte ,int* curseur){
     
 };
 
-token_stack* lexer(char* filename, int* taille){
+token_list* lexer(char* filename){
     int compteur = 0;
-    token_stack* stack =  new_token_stack();
-    stack->token=NULL;
+    token_list* liste =  init_token_list();
     FILE* fichier = fopen(filename,"r");
     fseek(fichier,0, SEEK_END);
     int len = ftell(fichier);
@@ -136,52 +113,44 @@ token_stack* lexer(char* filename, int* taille){
             compteur--;
         }
         else if (is_Op(c)) {
-            add_token(new_token(OP,value),stack);
+            add_token(new_token(OP,value),liste);
             curseur ++;
         }
         else if (is_Punc(c)) {
-            add_token(new_token(PUNC,value),stack);
+            add_token(new_token(PUNC,value),liste);
             curseur++;
         }
         else if (c==QUOTE) {
             curseur++;
-            add_token(new_token(STR,read_String(texte, &curseur)),stack);
+            add_token(new_token(STR,read_String(texte, &curseur)),liste);
             curseur++;
         }
         else if (isdigit(c)){
-            add_token(new_token(INT,read_Float(texte, &curseur)),stack);
+            add_token(new_token(INT,read_Float(texte, &curseur)),liste);
             curseur++;
         }
         else if ((c >= 97 && c <= 122) || (c >= 65 && c <= 90)){
             char* mot = read_String(texte ,&curseur);
             if (is_Keyword(mot)){
-                add_token(new_token(KW,mot),stack);
+                add_token(new_token(KW,mot),liste);
             }
             else {
-                add_token(new_token(ID,mot),stack);
+                add_token(new_token(ID,mot),liste);
             }
         };
         compteur++;
        
     }
-    *taille = compteur-1;
-    return stack;
+    return liste;
 };
 
-token** token_list(char* nom, int* taille){
-    int i =0 ;
-    token_stack* stack = lexer(nom,taille);
-    token** tab = malloc(sizeof(token*)*(*taille+1));
-    while(stack->token!=NULL){
-        tab[*taille-i]=stack->token;
-        stack = stack->next;
-        i++;
-    }
-    for (int k = 0; k < *taille; k++)
+
+int main(){
+    token_list* liste = lexer("test.txt");
+    for (int i = 0; i < liste->size ; i++)
     {
-        show_token(tab[k]);
+        show_token(liste->items[i]);
     }
-    free(stack);
-    return tab;
-};
-
+    
+   
+}
