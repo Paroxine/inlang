@@ -74,7 +74,7 @@ char* read_String(char* texte, int* curseur){
 };
 
 bool is_Keyword(char* mot){
-    if (strcmp(mot,"if")==0||strcmp(mot,"else")==0||strcmp(mot,"while")==0||strcmp(mot,"then")==0||strcmp(mot,"function")==0||strcmp(mot,"let")==0||strcmp(mot,"true")==0||strcmp(mot,"false")==0) return true;
+    if (strcmp(mot,"if")==0||strcmp(mot,"else")==0||strcmp(mot,"while")==0||strcmp(mot,"function")==0||strcmp(mot,"let")==0||strcmp(mot,"true")==0||strcmp(mot,"false")==0) return true;
     else return false ;
 };
 
@@ -138,14 +138,3 @@ token_list* lexer(char* filename){
     }
     return liste;
 };
-
-
-int main(){
-    token_list* liste = lexer("test.txt");
-    for (int i = 0; i < liste->size ; i++)
-    {
-        show_token(liste->items[i]);
-    }
-    
-   
-}

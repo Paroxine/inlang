@@ -1,10 +1,11 @@
-var salut = "coucou";
-var chien = 1;
-function graou (a,b){
+let salut = "coucou";
+let chien = 1;
+function max (a,b){
     if(a>b){
         print(a);
     }
     else{
         print(b);
     }
+    let c = 22;
 }

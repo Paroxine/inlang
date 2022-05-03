@@ -13,10 +13,6 @@ char* int_to_char(int type){
     if (type==INT){return "INT";};
 };
 
-void add(int* valeur){
-    *valeur = *valeur +1;
-}
-
 char* eat(int type,char* value,token* token,int* curseur){
     if (token->type!=type){
         printf("Wrong token type. Expected %s, received %s\n",int_to_char(type),int_to_char(token->type));
@@ -36,26 +32,38 @@ char* eat(int type,char* value,token* token,int* curseur){
 
     }
 };
-        
 
+AST_T* ast_init(int type){
+    AST_T* ast = malloc(sizeof(struct AST_T));
+    ast->type = type;
 
-AST_T* ast_assign(int* curseur,token** liste_token){
-    add(curseur);
-    AST_T* tree = malloc(sizeof(AST_T*));
-    tree->name = eat(ID,"",liste_token[*curseur],curseur);
-    eat(OP,"=",liste_token[*curseur],curseur);
-    tree->value = eat(STR,"",liste_token[*curseur],curseur);
-    eat(PUNC,";",liste_token[*curseur],curseur);
-    return tree;
-};
+    if (type==BLOCK){
+        ast->body = init_list(sizeof(struct AST_T));
+    }
+}
+    
+AST_T* token_to_AST(token* token){
+    AST_T* ast = init_ast(token->type);
+    ast->value = token->value;
+    return ast;
+}
 
-AST_T* parser(char* nom){
+AST_T* parse_expression(int* curseur, token* token_list){
+
+}
+
+AST_T* parse_if(int* curseur, token* token_list){
+
+}
+
+AST_T* parse_all(char* nom){
     token_list* liste_token = lexer(nom);
     int taille = liste_token->size;
     int curseur =0;
     while (curseur<taille)
     {
-        ast_compound(&curseur,liste_token);
+        list* prog = init_list(sizeof(struct AST_T));
+        parse_expression(&curseur,liste_token);
     }
     
     
