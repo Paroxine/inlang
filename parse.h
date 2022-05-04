@@ -3,7 +3,6 @@
 #include "lexer.h"
 
 
-enum p_type {BLOCK,NUMBER,STRING,BOOLEEN,IDENTIFIER,FUNCTION, CALL,ASSIGN, BINARY };
 
 typedef struct list{
     void** items;
@@ -28,28 +27,29 @@ void push_item(list* liste, void* item){
 }
 
 typedef struct AST_T{
-    enum p_type type;
+    enum type type;
     char* name;
     char* value;
 
     //block
     list* body;
+
+    //function
     list* args;
     
     // if then else statement
-    AST_T* cond; 
-    AST_T* then;
-    AST_T* elsee;
+    struct AST_T* cond; 
+    struct AST_T* then;
+    struct AST_T* elsee;
 
     // Binary 
-    AST_T* left; 
-    AST_T* right;
+    char* operator;
+    struct AST_T* left; 
+    struct AST_T* right;
 
 } AST_T;
 
-AST_T* init_ast(int type);
+AST_T* init_ast();
 
-AST_T* parse_assign();
-
-AST_T* parse_compound();
+AST_T* parse_block(token_list* liste);
 #endif

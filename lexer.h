@@ -1,5 +1,5 @@
-#ifndef LEXER_H
-#define LEXER_H
+#ifndef LEXER0_H
+#define LEXER0_H
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -10,18 +10,19 @@
 enum breaker { END = 0, SPACE = 32, EXCLA = 33, QUOTE = 34 , LPAR = 40, RPAR = 41, COMMA = 44,  POINT = 46 ,SEMIC= 59,LESS =60, EQUAL=61 ,GREATER=62,
 LBRA = 91, RBRA = 93 , LCURL=123, RCURL = 125 , PERC = 37 , PROD = 42 ,PLUS = 43 ,MINUS = 45 ,DIV = 47 ,HTAG = 35, LINE = 10};
 
-enum type {PUNC, KW, OP ,BLOCK, INT,STR,BOOLEEN,ID,FUNC, CALL, ASSIGN, BINARY };
+enum type {PUNC, KW, OP ,BLOCK, INT,STR,BOOL,ID ,FUNC, CALL, ASSIGN, BINARY, NOOP};
 
 typedef struct token{
     enum type type;
     char* value;
+    int precedence;
 } token;
 
 typedef struct token_list{
-    token** items;
+    struct token** items;
     size_t size;
+    int curseur;
 }token_list;
-
 
 char* char_to_string(char c);
 
@@ -53,4 +54,5 @@ char* read_Float(char* texte ,int* curseur);
 
 token_list* lexer(char* filename);
 
+void add_precedence(token_list* token_list);
 #endif

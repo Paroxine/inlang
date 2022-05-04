@@ -6,71 +6,172 @@
 
 char* int_to_char(int type){
     if (type==PUNC){return "PUNC";};
-    if (type==OP){return "OP";};
-    if (type==STR){return "STR";};
-    if (type==KW){return "KW";};
-    if (type==ID){return "ID";};
-    if (type==INT){return "INT";};
+    if (type==KW ){return "KW";};
+    if (type==OP ){return "OP";};
+    if (type==BLOCK ){return "BLOCK";};
+    if (type==INT ){return "INT";};
+    if (type==STR ){return "STR";};
+    if (type==BOOL ){return "BOOL";};
+    if (type==ID ){return "ID";};
+    if (type==FUNC ){return "FUNC";};
+    if (type==CALL  ){return "CALL";};
+    if (type==ASSIGN ){return "ASSIGN";};
+    if (type==BINARY ){return "BINARY";};
+    if (type==NOOP){return "NOOP";};
+
+
 };
 
-char* eat(int type,char* value,token* token,int* curseur){
+bool can_add(token_list* liste){
+    return (liste->curseur!=liste->size);
+}
+
+char* eat(int type,char* value,token_list* liste){
+    token* token = liste->items[liste->curseur];
     if (token->type!=type){
-        printf("Wrong token type. Expected %s, received %s\n",int_to_char(type),int_to_char(token->type));
-        printf("Wrong token value. Expected %s, received %s\n",value,token->value);
+        printf("Wrong token type. Expected %s; received %s\n",int_to_char(type),int_to_char(token->type));
+        printf("Wrong token value. Expected %s; received %s\n",value,token->value);
 
         exit(0);
     }
     else{
         if(token->type==PUNC||token->type==KW||strcmp(value,"=")==0){
             if (strcmp(value,token->value)!=0){
-                printf("Wrong token value. Expected %s, received %s",value,token->value);
+                printf("Wrong token value. Expected %s; received %s",value,token->value);
                 exit(1);
             }
         }
-        add(curseur) ;
+        if (can_add(liste)) liste->curseur+= 1 ;
         return token->value;
 
     }
 };
 
-AST_T* ast_init(int type){
+AST_T* ast_init(){
     AST_T* ast = malloc(sizeof(struct AST_T));
-    ast->type = type;
+    ast->type = NOOP;
+    ast->name = "init";
+    ast->value = "init";
 
-    if (type==BLOCK){
-        ast->body = init_list(sizeof(struct AST_T));
-    }
+    // Binary 
+    ast->operator = "noop";
+    ast->left= (void*) 0 ; 
+    ast->right = (void*) 0 ;
+
+    return ast;
 }
-    
+
+bool compare(char* mot1, char* mot2){
+    return (strcmp(mot1,mot2)==0);
+}
+
 AST_T* token_to_AST(token* token){
-    AST_T* ast = init_ast(token->type);
+    AST_T* ast = malloc(sizeof(struct AST_T));
+    ast->type = token->type;
     ast->value = token->value;
     return ast;
 }
 
-AST_T* parse_expression(int* curseur, token* token_list){
+AST_T* parse_if(token_list* liste){
 
 }
 
-AST_T* parse_if(int* curseur, token* token_list){
+AST_T* parse_bool(token_list* liste){
+} 
 
+AST_T* parse_block(token_list* liste){
 }
 
-AST_T* parse_all(char* nom){
-    token_list* liste_token = lexer(nom);
-    int taille = liste_token->size;
-    int curseur =0;
-    while (curseur<taille)
-    {
-        list* prog = init_list(sizeof(struct AST_T));
-        parse_expression(&curseur,liste_token);
+AST_T* parse_atom(token_list* liste){
+    
+    if (can_add(liste)){
+        // easiest case to parse from token to AST type 
+
+        token* token = liste->items[liste->curseur];
+        if (token->type == STR || token->type == ID || token->type == INT){
+            liste->curseur+=1;
+            return token_to_AST(token);
+        }
+
+        // Parsing of function and if statement
+        if (token->type==KW){
+            char* value = token->value;
+            if (compare(value,"function")){
+                AST_T* ast = malloc(sizeof(struct AST_T));
+                eat(KW, "function", liste);
+                ast->name = eat(ID,"",liste);
+                eat(PUNC,"(",liste);
+                ast->type=FUNC;
+                ast->args = init_list(sizeof(struct AST_T));
+                if (liste->items[liste->curseur]->value[0]==RPAR){
+                   eat(PUNC,")",liste);
+                   return ast;
+                }
+                push_item(ast->args, parse_atom(liste));
+                while (!compare(")",liste->items[liste->curseur]->value) && can_add(liste)){
+                    printf("%s\n",liste->items[liste->curseur]->value);
+                    eat(PUNC,",",liste);
+                    push_item(ast->args, parse_atom(liste));
+                }
+                eat(PUNC,")",liste);
+                return ast;                      
+            }
+
+            else if(compare(value, "if")){
+
+            }
+            
+            else if(compare(value,"if")) return parse_if(liste);
+            else if (compare(value, "true")||compare(value, "false")) return parse_bool(liste);
+        }
+        if(token->type==OP){
+            if (token->value[0]==LPAR) return parse_block(liste);
+        }
     }
-    
-    
-
+    AST_T* ast = ast_init();
+    return ast ;
 }
+
+AST_T* maybe_binary(AST_T* left, int old_precedence,token_list* liste){
+    if (can_add(liste)){
+        token* token = liste->items[liste->curseur];
+        if (token->type == OP){
+            if (token->precedence>=old_precedence){
+                liste->curseur+=1;
+                AST_T* binaire = malloc(sizeof(struct AST_T));
+                binaire->operator = token->value;
+                AST_T* right =  maybe_binary(parse_atom(liste),token->precedence, liste);
+                binaire->left = left; 
+                binaire->right = right;
+                return maybe_binary(binaire, old_precedence,liste);
+            }
+           
+        }
+    }
+    return left;;
+};
+
+AST_T* parse_expression(token_list* liste){
+    maybe_binary(parse_atom(liste),0,liste);
+};
 
 int main(){
-    parser("test1.txt");
+    token_list*  liste = lexer("test_func.txt");
+    // for (int i = 0; i < liste->size; i++)
+    // {
+    //     show_token(liste->items[i]);
+    // }
+    
+    AST_T* ast = parse_atom(liste);
+    printf("%s\n",int_to_char(ast->type));
+    printf("%s\n",ast->name);
+    void** liste_arg = ast->args->items;
+    int size = ast->args->size;
+    for (int i = 0; i < size; i++)
+    {   
+        AST_T* ast = liste_arg[i];
+        printf("%s\n", ast->value);
+    }
+    
     
 }

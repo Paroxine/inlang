@@ -4,15 +4,16 @@ struct token* new_token(enum type type, char* value){
     struct token* token = malloc(sizeof(struct token));
     token->type = type;
     token->value = value;
+    token->precedence= 0;
     return token;
 
 };
-
 
 token_list* init_token_list(){
     token_list* liste = calloc(1,sizeof(struct token_list));
     liste->items = 0 ;
     liste->size = 0;
+    liste->curseur = 0 ;
     return liste;
 }
 
@@ -24,12 +25,14 @@ void add_token(token* item, token_list* liste){
 }
 
 void show_token(struct token* token){
-    if (token->type==PUNC){printf("Punctuation : %s\n", token->value);};
-    if (token->type==OP){printf("Operation : %s\n", token->value);};
-    if (token->type==STR){printf("String : %s\n", token->value);};
-    if (token->type==KW){printf("Keyword : %s\n", token->value);};
-    if (token->type==ID){printf("Identifier : %s\n", token->value);};
-    if (token->type==INT){printf("Int : %s\n", token->value);};
+    if (token->type==PUNC){printf("Punctuation : %s ", token->value);};
+    if (token->type==OP){printf("Operation : %s ", token->value);};
+    if (token->type==STR){printf("String : %s ", token->value);};
+    if (token->type==KW){printf("Keyword : %s ", token->value);};
+    if (token->type==ID){printf("Identifier : %s ", token->value);};
+    if (token->type==INT){printf("Int : %s ", token->value);};
+    // printf("\n");
+    printf(" %d\n",token->precedence);
     
 };
 
@@ -90,6 +93,56 @@ char* read_Float(char* texte ,int* curseur){
     
 };
 
+void add_precedence(token_list* liste){
+    for (int i = 0; i < liste->size ; i++)
+    {
+        token* token = liste->items[i];
+        if (token->type!=OP){
+            token->precedence = 0;
+        }
+        else{
+            switch (token->value[0])
+            {
+            case '=':
+                token->precedence = 1;
+                break;
+            case '<':
+                token->precedence = 7;
+                break;
+            case '>':
+                token->precedence = 7;
+                break;
+            case '+':
+                token->precedence = 10;
+                break;
+            case '-':
+                token->precedence = 10;
+                break;
+            case '*':
+                token->precedence = 20;
+                break;
+            case '/':
+                token->precedence = 20;
+                break;
+            case '%':
+                token->precedence = 20;
+                break;
+
+            default:
+                break;
+            }
+            if (strcmp(token->value,"==")==0) token->precedence = 7;
+            else if (strcmp(token->value,"<=")==0) token->precedence = 7;
+            else if (strcmp(token->value,">=")==0) token->precedence = 7;
+            else if (strcmp(token->value,"!=")==0) token->precedence = 7;
+            else if (strcmp(token->value,"&&")==3) token->precedence = 7;
+            else if (strcmp(token->value,"||")==2) token->precedence = 7;
+        
+
+        };
+    }
+};
+
 token_list* lexer(char* filename){
     int compteur = 0;
     token_list* liste =  init_token_list();
@@ -108,8 +161,17 @@ token_list* lexer(char* filename){
             compteur--;
         }
         else if (is_Op(c)) {
-            add_token(new_token(OP,value),liste);
-            curseur ++;
+            if (is_Op(texte[curseur+1])){
+                char* value2 = strdup(value) ;
+                free(value);
+                char* value = concat(value2,char_to_string(texte[curseur+1]));
+                add_token(new_token(OP,value),liste);
+                curseur +=2;    
+            }
+            else{
+                add_token(new_token(OP,value),liste);
+                curseur ++;
+            }
         }
         else if (is_Punc(c)) {
             add_token(new_token(PUNC,value),liste);
@@ -136,5 +198,6 @@ token_list* lexer(char* filename){
         compteur++;
        
     }
+    add_precedence(liste);
     return liste;
 };
