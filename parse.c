@@ -86,7 +86,7 @@ AST_T* parse_if(token_list* liste){
     ast->cond = parse_expression(liste);
     eat(PUNC,")",liste);
     eat(PUNC,"{",liste);
-    ast->body_if = init_list(sizeof(struct AST_T));
+    ast->body_if= init_list(sizeof(struct AST_T));
     while (!compare("}",liste->items[liste->curseur]->value) && can_add(liste)){
         push_item(ast->body_if, parse_expression(liste));
         eat(PUNC,";",liste);
@@ -161,7 +161,7 @@ AST_T* parse_expression(token_list* liste){
 int main(){
     token_list*  liste = lexer("test_func.txt");
     AST_T* ast = parse_if(liste);
-    AST_T* fligne = ast->body->items[0];
+    AST_T* fligne = ast->body_if->items[0];
     printf("%s",fligne->operator);
      
 }
