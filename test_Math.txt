@@ -1,1 +1,1 @@
-a * b >= c + d * b
+function coucou(salut,chien) >= c + d * b

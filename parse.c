@@ -4,47 +4,33 @@
 #include "lex.h"
 #include "parse.h"
 
-char* int_to_char(int type){
-    if (type==PUNC){return "PUNC";};
-    if (type==KW ){return "KW";};
-    if (type==OP ){return "OP";};
-    if (type==BLOCK ){return "BLOCK";};
-    if (type==INT ){return "INT";};
-    if (type==STR ){return "STR";};
-    if (type==BOOL ){return "BOOL";};
-    if (type==ID ){return "ID";};
-    if (type==FUNC ){return "FUNC";};
-    if (type==CALL  ){return "CALL";};
-    if (type==ASSIGN ){return "ASSIGN";};
-    if (type==BINARY ){return "BINARY";};
-    if (type==NOOP){return "NOOP";};
-
-
-};
-
 bool can_add(token_list* liste){
     return (liste->curseur!=liste->size);
 }
 
 char* eat(int type,char* value,token_list* liste){
-    token* token = liste->items[liste->curseur];
-    if (token->type!=type){
-        printf("Wrong token type. Expected %s; received %s\n",int_to_char(type),int_to_char(token->type));
-        printf("Wrong token value. Expected %s; received %s\n",value,token->value);
+    if (liste->curseur<liste->size){
+        token* token = liste->items[liste->curseur];
+        if (token->type!=type){
+            printf("Wrong token type. Expected %s; received %s\n",int_to_char(type),int_to_char(token->type));
+            printf("Wrong token value. Expected %s; received %s\n",value,token->value);
 
-        exit(0);
-    }
-    else{
-        if(token->type==PUNC||token->type==KW||strcmp(value,"=")==0){
-            if (strcmp(value,token->value)!=0){
-                printf("Wrong token value. Expected %s; received %s",value,token->value);
-                exit(1);
-            }
+            exit(0);
         }
-        if (can_add(liste)) liste->curseur+= 1 ;
-        return token->value;
+        else{
+            if(token->type==PUNC||token->type==KW||strcmp(value,"=")==0){
+                if (strcmp(value,token->value)!=0){
+                    printf("Wrong token value. Expected %s; received %s",value,token->value);
+                    exit(1);
+                }
+            }
+            if (can_add(liste)) liste->curseur+= 1 ;
+            return token->value;
 
+        }
     }
+    printf("Exceed token list size");
+    exit(2);
 };
 
 AST_T* ast_init(){
@@ -72,8 +58,41 @@ AST_T* token_to_AST(token* token){
     return ast;
 }
 
-AST_T* parse_if(token_list* liste){
+AST_T* parse_function(token_list* liste){
+    AST_T* ast = malloc(sizeof(struct AST_T));
+    eat(KW, "function", liste);
+    ast->name = eat(ID,"",liste);
+    eat(PUNC,"(",liste);
+    ast->type=FUNC;
+    ast->args = init_list(sizeof(struct AST_T));
+    if (liste->items[liste->curseur]->value[0]==RPAR){
+        eat(PUNC,")",liste);
+        return ast;
+    }
+    push_item(ast->args, parse_expression(liste));
+    while (!compare(")",liste->items[liste->curseur]->value) && can_add(liste)){
+        eat(PUNC,",",liste);
+        push_item(ast->args, parse_expression(liste));
+    }
+    eat(PUNC,")",liste);
+    return ast;                     
+}
 
+AST_T* parse_if(token_list* liste){
+    eat(KW,"if",liste);
+    eat(PUNC,"(",liste);
+    AST_T* ast = malloc(sizeof(struct AST_T));
+    ast->type = IF ;
+    ast->cond = parse_expression(liste);
+    eat(PUNC,")",liste);
+    eat(PUNC,"{",liste);
+    ast->body_if = init_list(sizeof(struct AST_T));
+    while (!compare("}",liste->items[liste->curseur]->value) && can_add(liste)){
+        push_item(ast->body_if, parse_expression(liste));
+        eat(PUNC,";",liste);
+    }
+    eat(PUNC,"}",liste);
+    return ast;
 }
 
 AST_T* parse_bool(token_list* liste){
@@ -97,28 +116,11 @@ AST_T* parse_atom(token_list* liste){
         if (token->type==KW){
             char* value = token->value;
             if (compare(value,"function")){
-                AST_T* ast = malloc(sizeof(struct AST_T));
-                eat(KW, "function", liste);
-                ast->name = eat(ID,"",liste);
-                eat(PUNC,"(",liste);
-                ast->type=FUNC;
-                ast->args = init_list(sizeof(struct AST_T));
-                if (liste->items[liste->curseur]->value[0]==RPAR){
-                   eat(PUNC,")",liste);
-                   return ast;
-                }
-                push_item(ast->args, parse_atom(liste));
-                while (!compare(")",liste->items[liste->curseur]->value) && can_add(liste)){
-                    printf("%s\n",liste->items[liste->curseur]->value);
-                    eat(PUNC,",",liste);
-                    push_item(ast->args, parse_atom(liste));
-                }
-                eat(PUNC,")",liste);
-                return ast;                      
+                return parse_function(liste); 
             }
 
             else if(compare(value, "if")){
-
+                return parse_if(liste);
             }
             
             else if(compare(value,"if")) return parse_if(liste);
@@ -143,6 +145,7 @@ AST_T* maybe_binary(AST_T* left, int old_precedence,token_list* liste){
                 AST_T* right =  maybe_binary(parse_atom(liste),token->precedence, liste);
                 binaire->left = left; 
                 binaire->right = right;
+                binaire->type = BINARY;
                 return maybe_binary(binaire, old_precedence,liste);
             }
            
@@ -157,20 +160,8 @@ AST_T* parse_expression(token_list* liste){
 
 int main(){
     token_list*  liste = lexer("test_func.txt");
-    // for (int i = 0; i < liste->size; i++)
-    // {
-    //     show_token(liste->items[i]);
-    // }
-    
-    AST_T* ast = parse_atom(liste);
-    printf("%s\n",int_to_char(ast->type));
-    printf("%s\n",ast->name);
-    void** liste_arg = ast->args->items;
-    int size = ast->args->size;
-    for (int i = 0; i < size; i++)
-    {   
-        AST_T* ast = liste_arg[i];
-        printf("%s\n", ast->value);
-    }
-    
+    AST_T* ast = parse_if(liste);
+    AST_T* fligne = ast->body->items[0];
+    printf("%s",fligne->operator);
+     
 }

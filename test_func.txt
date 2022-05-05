@@ -1,1 +1,3 @@
-function coucou (salut ,chien , feuille)
+if (a>=b) {
+    a+b*c;
+}

@@ -33,12 +33,5 @@ void push_item(void* item, list* liste){
     liste->items[liste->size]=item;
     liste->size += 1;
 }
-int main(){
-   list* liste = init_list(sizeof(char*));
-   push_item("chien1",liste);
-   push_item("chien2",liste);
-   push_item("chien3",liste);
-   push_item("chien4",liste);
-   push_item("chien5",liste);
-   printf("%s", (char *) liste->items[0]);
-}
+
+
