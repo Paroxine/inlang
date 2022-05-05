@@ -92,13 +92,26 @@ AST_T* parse_if(token_list* liste){
         eat(PUNC,";",liste);
     }
     eat(PUNC,"}",liste);
+    if (can_add(liste)){
+        if(compare(liste->items[liste->curseur]->value,"else")){
+            eat(KW,"else",liste);
+            eat(PUNC,"{",liste);
+            ast->body_else = init_list(sizeof(struct AST_T));
+            
+            while (!compare("}",liste->items[liste->curseur]->value) && can_add(liste)){
+                push_item(ast->body_else, parse_expression(liste));
+                eat(PUNC,";",liste);
+            }
+            eat(PUNC,"}",liste);
+        }
+    }
     return ast;
 }
 
 AST_T* parse_bool(token_list* liste){
 } 
-
 AST_T* parse_block(token_list* liste){
+
 }
 
 AST_T* parse_atom(token_list* liste){
@@ -162,6 +175,9 @@ int main(){
     token_list*  liste = lexer("test_func.txt");
     AST_T* ast = parse_if(liste);
     AST_T* fligne = ast->body_if->items[0];
+    AST_T* sligne = ast->body_else->items[1];
     printf("%s",fligne->operator);
+    printf("%s",sligne->right->operator);
+
      
 }
