@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "lexer.h"
+#include "lex.h"
 #include "parse.h"
 
 char* int_to_char(int type){
@@ -172,6 +172,5 @@ int main(){
         AST_T* ast = liste_arg[i];
         printf("%s\n", ast->value);
     }
-    
     
 }

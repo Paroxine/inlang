@@ -1,4 +1,4 @@
-#include "lexer.h"
+#include "lex.h"
 
 struct token* new_token(enum type type, char* value){
     struct token* token = malloc(sizeof(struct token));
@@ -13,7 +13,7 @@ token_list* init_token_list(){
     token_list* liste = calloc(1,sizeof(struct token_list));
     liste->items = 0 ;
     liste->size = 0;
-    liste->curseur = 0 ;
+    liste->curseur = 0;
     return liste;
 }
 
