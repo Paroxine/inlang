@@ -78,6 +78,8 @@ AST_T* ast_init();
 
 AST_T* parse_all(token_list* liste);
 
+AST_T* parse_call(token_list* liste, AST_T* ast);
+
 AST_T* parse_function(token_list* liste);
 
 AST_T* parse_bool(token_list* liste);

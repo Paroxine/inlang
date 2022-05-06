@@ -1,7 +1,5 @@
 if (a>=b) {
-    a+b*c;
-}
-else{
-    a*b;
-    j+a/b;
+    if(a<=b){
+
+    };
 }
