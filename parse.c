@@ -33,20 +33,6 @@ char* eat(int type,char* value,token_list* liste){
     exit(2);
 };
 
-AST_T* ast_init(){
-    AST_T* ast = malloc(sizeof(struct AST_T));
-    ast->type = NOOP;
-    ast->name = "init";
-    ast->value = "init";
-
-    // Binary 
-    ast->operator = "noop";
-    ast->left= (void*) 0 ; 
-    ast->right = (void*) 0 ;
-
-    return ast;
-}
-
 bool compare(char* mot1, char* mot2){
     return (strcmp(mot1,mot2)==0);
 }
@@ -68,16 +54,16 @@ AST_T* parse_all(token_list* liste){
     return ast;
 };
 
-// AST_T* parse_assign(token_list* liste){
-//     eat(KW,"let",liste);
-//     AST_T* ast = malloc(sizeof(struct AST_T));
-//     ast->type = ASSIGN;
-//     ast->name = eat(ID,"",liste);
-//     eat(PUNC,"=",liste);
-//     ast->value = parse_expression(liste);
-//     return ast;
+AST_T* parse_assign(token_list* liste){
+    eat(KW,"let",liste);
+    AST_T* ast = malloc(sizeof(struct AST_T));
+    ast->type = ASSIGN;
+    ast->name = eat(ID,"",liste);
+    eat(OP,"=",liste);
+    ast->assign_value = parse_expression(liste);
+    return ast;
     
-// }
+}
 
 AST_T* parse_function(token_list* liste){
     AST_T* ast = malloc(sizeof(struct AST_T));
@@ -178,8 +164,6 @@ AST_T* parse_atom(token_list* liste){
             }
             else if (compare(value,"let")) return parse_assign(liste);
         }
-    AST_T* ast = ast_init();
-    return ast ;
     }
 }
 
@@ -212,10 +196,17 @@ AST_T* parse_expression(token_list* liste){
 };
 
 int main(){
-    token_list*  liste = lexer("test_Math.txt");
-    AST_T* ast = parse_expression(liste);
-    printf("%s",int_to_char(ast->type));
-    // AST_T* sligne = ast->body_else->items[1];
+    token_list*  liste = lexer("test.txt");
+    for (int i = 0; i < liste->size; i++)
+    {
+        show_token(liste->items[i]);
+    }
+    AST_T* ast = parse_all(liste);
+    AST_T* func = ast->body->items[2];
+
+    printf("%s\n",int_to_char(ast->type));
+    printf("%s",func->name);
+
    
      
 }

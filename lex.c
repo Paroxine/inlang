@@ -31,8 +31,8 @@ void show_token(struct token* token){
     if (token->type==KW){printf("Keyword : %s ", token->value);};
     if (token->type==ID){printf("Identifier : %s ", token->value);};
     if (token->type==INT){printf("Int : %s ", token->value);};
-    // printf("\n");
-    printf(" %d\n",token->precedence);
+    printf("\n");
+    // printf(" %d\n",token->precedence);
     
 };
 
@@ -85,7 +85,7 @@ char* read_Float(char* texte ,int* curseur){
     char* endPtn;
     int buffer = *curseur;
     float nombre = strtof(texte+*curseur,&endPtn);
-    *curseur = strlen(texte)-strlen(endPtn);
+    *curseur = strlen(texte)-strlen(endPtn)-1;
     int len = *curseur - buffer;
     char* mot = malloc(sizeof(char)*(len+1));
     sprintf(mot,"%f",nombre);

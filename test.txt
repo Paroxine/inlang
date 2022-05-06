@@ -1,5 +1,5 @@
 let salut = "coucou";
-let chien = 1;
+let chien = 2 ;
 function max (a,b){
     if(a!=b){
         print(a);
@@ -7,5 +7,7 @@ function max (a,b){
     else{
         print(b);
     };
-    let c = 22;
-}
+    let c = 22 ;
+};
+
+

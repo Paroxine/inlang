@@ -54,6 +54,9 @@ typedef struct AST_T{
     char* name;
     char* value;
 
+    //assign
+    struct AST_T* assign_value;
+
     //block
     list* body;
 
