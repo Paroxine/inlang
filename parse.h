@@ -2,7 +2,7 @@
 #define PARSE_H
 #include "lex.h"
 
-char* int_to_char(int type){
+char* int_to_char(int type){ //debug
     if (type==PUNC){return "PUNC";};
     if (type==KW ){return "KW";};
     if (type==OP ){return "OP";};
@@ -16,7 +16,7 @@ char* int_to_char(int type){
     if (type==ASSIGN ){return "ASSIGN";};
     if (type==BINARY ){return "BINARY";};
     if (type==IF ){return "IF";};
-    if (type==NOOP){return "NOOP";};
+    if (type==WHILE){return "WHILE";};
 };
 
 typedef struct list{
@@ -62,12 +62,14 @@ typedef struct AST_T{
 
     //function
     list* args;
+
+     // if then else statement
     list* body_if;
     list* body_else;
-    // if then else statement
     struct AST_T* cond; 
     
-    
+    //while statement 
+    list* body_while;
     // Binary 
     char* operator;
     struct AST_T* left; 
@@ -75,13 +77,17 @@ typedef struct AST_T{
 
 } AST_T;
 
+bool can_add(token_list* liste){
+    return (liste->curseur!=liste->size);
+}
+
 char* eat(int type,char* value,token_list* liste);
 
 AST_T* ast_init();
 
 AST_T* parse_all(token_list* liste);
 
-AST_T* parse_call(token_list* liste, AST_T* ast);
+AST_T* parse_call(token_list* liste);
 
 AST_T* parse_function(token_list* liste);
 
@@ -93,5 +99,10 @@ AST_T* parse_atom(token_list* liste);
 
 AST_T* parse_expression(token_list* liste);
 
+AST_T* parse_parentheses(token_list* liste);
+
+AST_T* parse_while(token_list* liste);
+
 AST_T* maybe_binary(AST_T* left, int old_precedence,token_list* liste);
+
 #endif

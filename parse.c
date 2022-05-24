@@ -1,12 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "lex.h"
 #include "parse.h"
-
-bool can_add(token_list* liste){
-    return (liste->curseur!=liste->size);
-}
 
 char* eat(int type,char* value,token_list* liste){
     if (liste->curseur<liste->size){
@@ -61,6 +56,7 @@ AST_T* parse_assign(token_list* liste){
     ast->name = eat(ID,"",liste);
     eat(OP,"=",liste);
     ast->assign_value = parse_expression(liste);
+
     return ast;
     
 }
@@ -116,15 +112,31 @@ AST_T* parse_if(token_list* liste){
             eat(PUNC,"}",liste);
         }
     }
-    // eat(PUNC,";",liste);
     return ast;
 }
 
-AST_T* parse_call(token_list* liste,AST_T* ast){
+AST_T* parse_while(token_list* liste){
+    eat(KW,"while",liste);
+    eat(PUNC,"(",liste);
+    AST_T* ast = malloc(sizeof(struct AST_T));
+    ast->type = WHILE ;
+    ast->cond = parse_expression(liste);
+    eat(PUNC,")",liste);
+    eat(PUNC,"{",liste);
+    ast->body_while= init_list(sizeof(struct AST_T));
+    while (!compare("}",liste->items[liste->curseur]->value) && can_add(liste)){
+        push_item(ast->body_while, parse_expression(liste));
+        eat(PUNC,";",liste);
+    }
+    eat(PUNC,"}",liste);
+    return ast;
+}
+
+AST_T* parse_call(token_list* liste){
     AST_T* call = malloc(sizeof(struct AST_T));
-    call->name = ast->value;
+    call->name = eat(ID,"",liste);
+    eat(PUNC,"(",liste);
     call->type = CALL;
-    eat(PUNC,"(",liste); 
     call->args = init_list(sizeof(struct AST_T));
     if (!(liste->items[liste->curseur]->value[0]==RPAR)) push_item(call->args, parse_expression(liste));
     while (!compare(")",liste->items[liste->curseur]->value) && can_add(liste)){
@@ -142,27 +154,44 @@ AST_T* parse_bool(token_list* liste){
     return ast;
 }
 
+AST_T* parse_parentheses(token_list* liste){
+    eat(PUNC,"(",liste);
+    AST_T* ast = parse_expression(liste);
+    eat(PUNC,")",liste);
+    return ast;
+
+}
+
 AST_T* parse_atom(token_list* liste){
     
     if (can_add(liste)){
         // easiest case to parse from token to AST type 
 
         token* token = liste->items[liste->curseur];
-        if (token->type == STR || token->type == ID || token->type == INT){
+        if (compare(token->value,"(")) return parse_parentheses(liste);
+        else if ((token->type == ID) && (compare(liste->items[liste->curseur+1]->value,"("))){
+            return parse_call(liste);
+        }   
+        else if (token->type == STR || token->type == ID || token->type == INT){
             liste->curseur+=1;
             return token_to_AST(token);
         }
 
         // Parsing of function and if statement
-        if (token->type==KW){
+        else if (token->type==KW){
             char* value = token->value;
             if (compare(value,"function")) return parse_function(liste); 
             else if(compare(value,"if")) return parse_if(liste);
+            else if(compare(value,"while")) return parse_while(liste);
             else if (compare(value, "true")||compare(value, "false")){
                 liste->curseur+=1;
                 return parse_bool(liste);
             }
             else if (compare(value,"let")) return parse_assign(liste);
+        }
+        else{
+            printf("DON'T KNOW HOW TO PARSE");
+            exit(0);
         }
     }
 }
@@ -189,24 +218,6 @@ AST_T* maybe_binary(AST_T* left, int old_precedence,token_list* liste){
 
 AST_T* parse_expression(token_list* liste){
     AST_T* ast = parse_atom(liste);
-    if ((ast->type == ID) && (compare(liste->items[liste->curseur]->value,"("))){
-        return parse_call(liste,ast);
-    }
     return maybe_binary(ast,0,liste);
 };
 
-int main(){
-    token_list*  liste = lexer("test.txt");
-    for (int i = 0; i < liste->size; i++)
-    {
-        show_token(liste->items[i]);
-    }
-    AST_T* ast = parse_all(liste);
-    AST_T* func = ast->body->items[2];
-
-    printf("%s\n",int_to_char(ast->type));
-    printf("%s",func->name);
-
-   
-     
-}

@@ -3,35 +3,15 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-// var PRECEDENCE = {
-//     "=": 1,
-//     "||": 2,
-//     "&&": 3,
-//     "<": 7, ">": 7, "<=": 7, ">=": 7, "==": 7, "!=": 7,
-//     "+": 10, "-": 10,
-//     "*": 20, "/": 20, "%": 20,
-// };
 
-typedef struct list{
-    void** items;
-    size_t size;
-    size_t item_size;
-}list;
-
-
-list* init_list(size_t item_size){
-    list* liste = calloc(1,sizeof(struct list));
-    liste->items = 0 ;
-    liste->size = 0;
-    liste->item_size = item_size;
-    return liste;
+int main(){
+    char* salut = "test.txt";
+    char* chien = "r";
+    FILE* fichier = fopen(salut,chien);
+    fseek(fichier,0, SEEK_END);
+    int len = ftell(fichier);
+    fseek(fichier,0,SEEK_SET);
+    char* texte = malloc(sizeof(char) * (len+1));
+    fread(texte,1,len,fichier);
+    printf("%s",texte);
 }
-
-void push_item(void* item, list* liste){
-    if (!liste->items) liste->items = calloc(1,liste->item_size);
-    else liste->items = realloc(liste->items,liste->item_size*(liste->size+1));
-    liste->items[liste->size]=item;
-    liste->size += 1;
-}
-
-

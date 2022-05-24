@@ -1,1 +1,14 @@
-let coucou = "salut";
+let coucou = 2;
+let chien = 3;
+function max (a,b){
+    if(a>b){
+        return(a);
+        
+    }
+    else{
+        return(b);
+       
+    };
+};
+let test = max(coucou,chien);
+
