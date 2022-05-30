@@ -4,4 +4,9 @@ build:
 	gcc eval.c lex.c
 
 run: build
-	./a.out
+	ifdef file
+		./a.out $(file)
+	else
+		./a.out
+	endif
+	
