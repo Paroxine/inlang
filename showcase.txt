@@ -2,13 +2,12 @@ let coucou = 2;
 let chien = 3;
 function max (a,b){
     if(a>b){
-        return(a);
-        
+        let max = a;
     }
     else{
-        return(b);
-       
+        let max = b;
     };
+    return(max);
 };
 let test = max(coucou,chien);
-
+print(test);

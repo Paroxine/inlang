@@ -1,5 +1,5 @@
-#ifndef VISITOR_H
-#define VISITOR_H
+#ifndef EVAL_H
+#define EVAL_H
 #include "parse.h"
 
 float apply_op(char* op, char* right_char, char* left_char);

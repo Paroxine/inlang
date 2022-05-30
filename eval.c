@@ -1,4 +1,4 @@
-#include "visitor.h"
+#include "eval.h"
 #include "parse.c"
 
 float apply_op(char* op, char* right_char, char* left_char){
@@ -260,12 +260,16 @@ AST_T* evaluate(AST_T* node , list* environnement){
     }
 }
 
-int main(){
-    token_list*  liste = lexer("test.txt");
-    // for (int i = 0; i < liste->size; i++)
-    // {
-    //     show_token(liste->items[i]);
-    // }
+int main(int argc, char** argv) {
+    if (argc < 2) {
+        token_list*  liste = lexer("test.txt");
+    } else {
+        token_list*  liste = lexer(argv[1]);
+    }
+    for (int i = 0; i < liste->size; i++)
+    {
+        show_token(liste->items[i]);
+    }
     
     list* environnement = init_list(sizeof(struct AST_T));
     AST_T* ast = parse_all(liste);

@@ -1,0 +1,2 @@
+let coucou = fileopen("showcase.txt","r");
+print(coucou);
