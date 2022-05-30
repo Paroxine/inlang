@@ -261,10 +261,12 @@ AST_T* evaluate(AST_T* node , list* environnement){
 }
 
 int main(int argc, char** argv) {
+    
+    token_list*  liste;
     if (argc < 2) {
-        token_list*  liste = lexer("test.txt");
+        liste = lexer("showcase.txt");
     } else {
-        token_list*  liste = lexer(argv[1]);
+        liste = lexer(argv[1]);
     }
     for (int i = 0; i < liste->size; i++)
     {
